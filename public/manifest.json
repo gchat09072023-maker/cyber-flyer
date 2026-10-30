@@ -1,29 +1,32 @@
 {
-  "id": "/",
-  "name": "Cyber Flyer",
-  "short_name": "CyberFlyer",
-  "description": "High-speed ground racing and seamless aerial flight simulation in a neon cyberpunk metropolis.",
-  "start_url": "/",
-  "scope": "/",
-  "display": "standalone",
-  "background_color": "#000000",
-  "theme_color": "#0a0a23",
-  "orientation": "portrait",
-  "categories": [
-    "games"
-  ],
-  "icons": [
-    {
-      "src": "/icon-512.png",
-      "sizes": "1024x1024",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "any maskable"
-    }
-  ]
+    "name": "Cyber Flyer",
+      "short_name": "CyberFlyer",
+        "start_url": "/",
+          "display": "standalone",
+            "background_color": "#000000",
+              "theme_color": "#0a0a23",
+                "orientation": "portrait",
+                  "categories": ["games"],
+                    "icons": [
+                        {
+                              "src": "/icon-512.png",
+                                    "sizes": "192x192",
+                                          "type": "image/png",
+                                                "purpose": "any"
+                                                    },
+                                                        {
+                                                              "src": "/icon-512.png",
+                                                                    "sizes": "512x512",
+                                                                          "type": "image/png",
+                                                                                "purpose": "any"
+                                                                                    },
+                                                                                        {
+                                                                                              "src": "/icon-512.png",
+                                                                                                    "sizes": "512x512",
+                                                                                                          "type": "image/png",
+                                                                                                                "purpose": "maskable"
+                                                                                                                    }
+                                                                                                                      ]
+                                                                                                                      }
+                                                                                                                      
 }
