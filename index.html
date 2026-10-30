@@ -1,67 +1,64 @@
 <!doctype html>
 <html lang="en">
   <head>
-      <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-              <title>Cyber Flyer - 3D Cyberpunk Flying Car Simulator</title>
-                  <meta name="description" content="High-speed ground racing and seamless aerial flight simulation in a neon cyberpunk metropolis with procedural audio, missions, and responsive mobile controls." />
-                      <meta property="og:title" content="Cyber Flyer - 3D Cyberpunk Flying Car Simulator" />
-                          <meta property="og:description" content="High-speed ground racing and seamless aerial flight simulation in a neon cyberpunk metropolis with procedural audio, missions, and responsive mobile controls." />
-                              <meta property="og:type" content="website" />
-                                  <meta name="twitter:card" content="summary_large_image" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cyber Flyer - 3D Cyberpunk Flying Car Simulator</title>
+    <meta name="description" content="High-speed ground racing and seamless aerial flight simulation in a neon cyberpunk metropolis with procedural audio, missions, and responsive mobile controls." />
+    <meta property="og:title" content="Cyber Flyer - 3D Cyberpunk Flying Car Simulator" />
+    <meta property="og:description" content="High-speed ground racing and seamless aerial flight simulation in a neon cyberpunk metropolis with procedural audio, missions, and responsive mobile controls." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
 
-                                      <!-- PWA Settings -->
-                                          <link rel="manifest" href="/manifest.json" />
-                                              <meta name="theme-color" content="#0a0a23" />
-                                                  <link rel="icon" type="image/png" href="/icon-512.png" />
+    <!-- PWA Settings -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#0a0a23" />
+    <link rel="icon" type="image/png" href="/icon-512.png" />
 
-                                                      <script>
-                                                            // Vite WebSocket Reconnection Guard
-                                                                  (function() {
-                                                                          window.addEventListener('unhandledrejection', function(event) {
-                                                                                    var reason = event && event.reason;
-                                                                                              if (
-                                                                                                          (reason instanceof Event && (reason.type === 'error' || (window.WebSocket && reason.target instanceof WebSocket))) ||
-                                                                                                                      (reason && typeof reason.message === 'string' && (
-                                                                                                                                    reason.message.indexOf('WebSocket') !== -1 ||
-                                                                                                                                                  reason.message.indexOf('vite') !== -1 ||
-                                                                                                                                                                reason.message.indexOf('ws://') !== -1 ||
-                                                                                                                                                                              reason.message.indexOf('wss://') !== -1
-                                                                                                                                                                                          ))
-                                                                                                                                                                                                    ) {
-                                                                                                                                                                                                                event.preventDefault();
-                                                                                                                                                                                                                            event.stopImmediatePropagation && event.stopImmediatePropagation();
-                                                                                                                                                                                                                                      }
-                                                                                                                                                                                                                                              });
-                                                                                                                                                                                                                                                      window.addEventListener('error', function(event) {
-                                                                                                                                                                                                                                                                if (
-                                                                                                                                                                                                                                                                            (window.WebSocket && event.target instanceof WebSocket) ||
-                                                                                                                                                                                                                                                                                        (event.message && (
-                                                                                                                                                                                                                                                                                                      event.message.indexOf('WebSocket') !== -1 ||
-                                                                                                                                                                                                                                                                                                                    event.message.indexOf('vite') !== -1
-                                                                                                                                                                                                                                                                                                                                ))
-                                                                                                                                                                                                                                                                                                                                          ) {
-                                                                                                                                                                                                                                                                                                                                                      event.preventDefault();
-                                                                                                                                                                                                                                                                                                                                                                  event.stopImmediatePropagation && event.stopImmediatePropagation();
-                                                                                                                                                                                                                                                                                                                                                                            }
-                                                                                                                                                                                                                                                                                                                                                                                    }, true);
-                                                                                                                                                                                                                                                                                                                                                                                          })();
-                                                                                                                                                                                                                                                                                                                                                                                              </script>
-                                                                                                                                                                                                                                                                                                                                                                                                </head>
-                                                                                                                                                                                                                                                                                                                                                                                                  <body>
-                                                                                                                                                                                                                                                                                                                                                                                                      <div id="root"></div>
-                                                                                                                                                                                                                                                                                                                                                                                                          <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Vite WebSocket Reconnection Guard
+      (function() {
+        window.addEventListener('unhandledrejection', function(event) {
+          var reason = event && event.reason;
+          if (
+            (reason instanceof Event && (reason.type === 'error' || (window.WebSocket && reason.target instanceof WebSocket))) ||
+            (reason && typeof reason.message === 'string' && (
+              reason.message.indexOf('WebSocket') !== -1 ||
+              reason.message.indexOf('vite') !== -1 ||
+              reason.message.indexOf('ws://') !== -1 ||
+              reason.message.indexOf('wss://') !== -1
+            ))
+          ) {
+            event.preventDefault();
+            event.stopImmediatePropagation && event.stopImmediatePropagation();
+          }
+        });
+        window.addEventListener('error', function(event) {
+          if (
+            (window.WebSocket && event.target instanceof WebSocket) ||
+            (event.message && (
+              event.message.indexOf('WebSocket') !== -1 ||
+              event.message.indexOf('vite') !== -1
+            ))
+          ) {
+            event.preventDefault();
+            event.stopImmediatePropagation && event.stopImmediatePropagation();
+          }
+        }, true);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
 
-                                                                                                                                                                                                                                                                                                                                                                                                              <!-- Service Worker Registration -->
-                                                                                                                                                                                                                                                                                                                                                                                                                  <script>
-                                                                                                                                                                                                                                                                                                                                                                                                                        if ('serviceWorker' in navigator) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                window.addEventListener('load', () => {
-                                                                                                                                                                                                                                                                                                                                                                                                                                          navigator.serviceWorker.register('/sw.js').catch((err) => {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                      console.log('SW registration failed: ', err);
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                });
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                        });
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                              }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </script>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </body>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </html>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    </script>
+  </body>
+</html>
