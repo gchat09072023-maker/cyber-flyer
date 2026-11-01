@@ -16,12 +16,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-
       - name: Create Native Android Project Files
         run: |
           mkdir -p android/app/src/main/java/com/cyberflyer/game
@@ -60,7 +54,7 @@ jobs:
           EOF
 
           # 4. Generate Release Keystore
-          keytool -genkeypair -v -keystore android/app/release.keystore -alias cyberflyer -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=CyberFlyer, OU=Gaming, O=Studio, L=City, S=State, C=IN"
+          keytool -genkeypair -v -keystore android/app/release.keystore -alias cyberflyer -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=CyberFlyer, OU=Gaming, O=Studio, L=Varanasi, S=UP, C=IN"
 
           # 5. app/build.gradle
           cat << 'EOF' > android/app/build.gradle
@@ -102,7 +96,7 @@ jobs:
           }
           EOF
 
-          # 6. AndroidManifest.xml (AdMob App ID Configuration)
+          # 6. AndroidManifest.xml (AdMob IDs Integrated)
           cat << 'EOF' > android/app/src/main/AndroidManifest.xml
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -129,7 +123,7 @@ jobs:
           </manifest>
           EOF
 
-          # 7. MainActivity.java (AdMob Interstitial Ad Integrated)
+          # 7. MainActivity.java (Game WebView + Interstitial Ad Integrated)
           cat << 'EOF' > android/app/src/main/java/com/cyberflyer/game/MainActivity.java
           package com.cyberflyer.game;
 
@@ -155,7 +149,6 @@ jobs:
                   super.onCreate(savedInstanceState);
                   RelativeLayout layout = new RelativeLayout(this);
 
-                  // 1. WebView Game Setup
                   webView = new WebView(this);
                   WebSettings settings = webView.getSettings();
                   settings.setJavaScriptEnabled(true);
@@ -167,7 +160,6 @@ jobs:
                           RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
                   layout.addView(webView, webParams);
 
-                  // 2. Initialize AdMob and Load Interstitial Ad
                   MobileAds.initialize(this, initializationStatus -> {});
                   loadInterstitialAd();
 
@@ -204,7 +196,12 @@ jobs:
           }
           EOF
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
       - name: Build Android Bundle (AAB)
+        env:
+          ANDROID_HOME: /usr/local/lib/android/sdk
         run: |
           cd android
           gradle bundleRelease --stacktrace
