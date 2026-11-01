@@ -16,23 +16,25 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Set up Android SDK
+      - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Create Complete Android Project
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Create Native Android Project Files
         run: |
           mkdir -p android/app/src/main/java/com/cyberflyer/game
-          mkdir -p android/app/src/main/res/mipmap-hdpi
           mkdir -p android/app/src/main/res/values
 
-          # App strings
+          # 1. Strings
           cat << 'EOF' > android/app/src/main/res/values/strings.xml
           <resources>
               <string name="app_name">Cyber Flyer</string>
           </resources>
           EOF
 
-          # Root build.gradle
+          # 2. Root build.gradle
           cat << 'EOF' > android/build.gradle
           buildscript {
               repositories {
@@ -51,16 +53,16 @@ jobs:
           }
           EOF
 
-          # settings.gradle
+          # 3. settings.gradle
           cat << 'EOF' > android/settings.gradle
           rootProject.name = "CyberFlyer"
           include ':app'
           EOF
 
-          # Generate Keystore for Release
+          # 4. Generate Release Keystore
           keytool -genkeypair -v -keystore android/app/release.keystore -alias cyberflyer -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=CyberFlyer, OU=Gaming, O=Studio, L=City, S=State, C=IN"
 
-          # app/build.gradle
+          # 5. app/build.gradle
           cat << 'EOF' > android/app/build.gradle
           plugins {
               id 'com.android.application'
@@ -100,7 +102,7 @@ jobs:
           }
           EOF
 
-          # AndroidManifest.xml
+          # 6. AndroidManifest.xml (AdMob App ID Configuration)
           cat << 'EOF' > android/app/src/main/AndroidManifest.xml
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -113,7 +115,7 @@ jobs:
                   android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
                   <meta-data
                       android:name="com.google.android.gms.ads.APPLICATION_ID"
-                      android:value="ca-app-pub-3940256099942544~3347511713"/>
+                      android:value="ca-app-pub-7567486237342194~3347511713"/>
                   <activity
                       android:name=".MainActivity"
                       android:configChanges="orientation|screenSize"
@@ -127,7 +129,7 @@ jobs:
           </manifest>
           EOF
 
-          # MainActivity.java
+          # 7. MainActivity.java (AdMob Interstitial Ad Integrated)
           cat << 'EOF' > android/app/src/main/java/com/cyberflyer/game/MainActivity.java
           package com.cyberflyer.game;
 
@@ -137,20 +139,23 @@ jobs:
           import android.webkit.WebView;
           import android.webkit.WebViewClient;
           import android.widget.RelativeLayout;
+          import androidx.annotation.NonNull;
           import com.google.android.gms.ads.AdRequest;
-          import com.google.android.gms.ads.AdSize;
-          import com.google.android.gms.ads.AdView;
+          import com.google.android.gms.ads.LoadAdError;
           import com.google.android.gms.ads.MobileAds;
+          import com.google.android.gms.ads.interstitial.InterstitialAd;
+          import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 
           public class MainActivity extends Activity {
               private WebView webView;
-              private AdView adView;
+              private InterstitialAd mInterstitialAd;
 
               @Override
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
                   RelativeLayout layout = new RelativeLayout(this);
 
+                  // 1. WebView Game Setup
                   webView = new WebView(this);
                   WebSettings settings = webView.getSettings();
                   settings.setJavaScriptEnabled(true);
@@ -162,26 +167,35 @@ jobs:
                           RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
                   layout.addView(webView, webParams);
 
+                  // 2. Initialize AdMob and Load Interstitial Ad
                   MobileAds.initialize(this, initializationStatus -> {});
-                  adView = new AdView(this);
-                  adView.setAdSize(AdSize.BANNER);
-                  adView.setAdUnitId("ca-app-pub-3940256099942544/6300978111");
-
-                  RelativeLayout.LayoutParams adParams = new RelativeLayout.LayoutParams(
-                          RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-                  adParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-                  adParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-                  layout.addView(adView, adParams);
-
-                  AdRequest adRequest = new AdRequest.Builder().build();
-                  adView.loadAd(adRequest);
+                  loadInterstitialAd();
 
                   setContentView(layout);
               }
 
+              private void loadInterstitialAd() {
+                  AdRequest adRequest = new AdRequest.Builder().build();
+                  InterstitialAd.load(this, "ca-app-pub-7567486237342194/2588775869", adRequest,
+                          new InterstitialAdLoadCallback() {
+                              @Override
+                              public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                                  mInterstitialAd = interstitialAd;
+                              }
+
+                              @Override
+                              public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                                  mInterstitialAd = null;
+                              }
+                          });
+              }
+
               @Override
               public void onBackPressed() {
-                  if (webView.canGoBack()) {
+                  if (mInterstitialAd != null) {
+                      mInterstitialAd.show(this);
+                      loadInterstitialAd();
+                  } else if (webView.canGoBack()) {
                       webView.goBack();
                   } else {
                       super.onBackPressed();
@@ -190,11 +204,10 @@ jobs:
           }
           EOF
 
-      - name: Build Android Bundle (AAB) with Gradle Wrapper
+      - name: Build Android Bundle (AAB)
         run: |
           cd android
-          gradle wrapper
-          ./gradlew bundleRelease --stacktrace
+          gradle bundleRelease --stacktrace
 
       - name: Upload Release AAB
         uses: actions/upload-artifact@v4
