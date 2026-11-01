@@ -16,12 +16,23 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Create Native Android Project Structure
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Create Complete Android Project
         run: |
           mkdir -p android/app/src/main/java/com/cyberflyer/game
+          mkdir -p android/app/src/main/res/mipmap-hdpi
           mkdir -p android/app/src/main/res/values
 
-          # 1. Root build.gradle
+          # App strings
+          cat << 'EOF' > android/app/src/main/res/values/strings.xml
+          <resources>
+              <string name="app_name">Cyber Flyer</string>
+          </resources>
+          EOF
+
+          # Root build.gradle
           cat << 'EOF' > android/build.gradle
           buildscript {
               repositories {
@@ -40,20 +51,25 @@ jobs:
           }
           EOF
 
-          # 2. settings.gradle
+          # settings.gradle
           cat << 'EOF' > android/settings.gradle
           rootProject.name = "CyberFlyer"
           include ':app'
           EOF
 
-          # 3. app/build.gradle
+          # Generate Keystore for Release
+          keytool -genkeypair -v -keystore android/app/release.keystore -alias cyberflyer -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=CyberFlyer, OU=Gaming, O=Studio, L=City, S=State, C=IN"
+
+          # app/build.gradle
           cat << 'EOF' > android/app/build.gradle
           plugins {
               id 'com.android.application'
           }
+
           android {
               namespace 'com.cyberflyer.game'
               compileSdk 34
+
               defaultConfig {
                   applicationId "com.cyberflyer.game"
                   minSdk 21
@@ -61,18 +77,30 @@ jobs:
                   versionCode 1
                   versionName "1.0"
               }
+
+              signingConfigs {
+                  release {
+                      storeFile file("release.keystore")
+                      storePassword "123456"
+                      keyAlias "cyberflyer"
+                      keyPassword "123456"
+                  }
+              }
+
               buildTypes {
                   release {
+                      signingConfig signingConfigs.release
                       minifyEnabled false
                   }
               }
           }
+
           dependencies {
               implementation 'com.google.android.gms:play-services-ads:23.0.0'
           }
           EOF
 
-          # 4. AndroidManifest.xml
+          # AndroidManifest.xml
           cat << 'EOF' > android/app/src/main/AndroidManifest.xml
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -80,7 +108,7 @@ jobs:
               <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
               <application
                   android:allowBackup="true"
-                  android:label="Cyber Flyer"
+                  android:label="@string/app_name"
                   android:supportsRtl="true"
                   android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
                   <meta-data
@@ -99,7 +127,7 @@ jobs:
           </manifest>
           EOF
 
-          # 5. MainActivity.java
+          # MainActivity.java
           cat << 'EOF' > android/app/src/main/java/com/cyberflyer/game/MainActivity.java
           package com.cyberflyer.game;
 
@@ -162,13 +190,14 @@ jobs:
           }
           EOF
 
-      - name: Build Android App Bundle (AAB)
+      - name: Build Android Bundle (AAB) with Gradle Wrapper
         run: |
           cd android
-          gradle bundleRelease
+          gradle wrapper
+          ./gradlew bundleRelease --stacktrace
 
-      - name: Upload Signed/Release Bundle
+      - name: Upload Release AAB
         uses: actions/upload-artifact@v4
         with:
-          name: CyberFlyer-Release-Bundle
+          name: CyberFlyer-GooglePlay-AAB
           path: android/app/build/outputs/bundle/release/*.aab
