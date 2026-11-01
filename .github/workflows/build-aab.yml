@@ -16,7 +16,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Create Native Android Project Files
+      - name: Install Compatible Gradle 8.5
+        run: |
+          wget -q https://services.gradle.org/distributions/gradle-8.5-bin.zip
+          unzip -q gradle-8.5-bin.zip
+          echo "$GITHUB_WORKSPACE/gradle-8.5/bin" >> $GITHUB_PATH
+
+      - name: Create Native Android Project Structure
         run: |
           mkdir -p android/app/src/main/java/com/cyberflyer/game
           mkdir -p android/app/src/main/res/values
@@ -53,7 +59,7 @@ jobs:
           include ':app'
           EOF
 
-          # 4. Generate Release Keystore
+          # 4. Generate Keystore
           keytool -genkeypair -v -keystore android/app/release.keystore -alias cyberflyer -keyalg RSA -keysize 2048 -validity 10000 -storepass 123456 -keypass 123456 -dname "CN=CyberFlyer, OU=Gaming, O=Studio, L=Varanasi, S=UP, C=IN"
 
           # 5. app/build.gradle
@@ -96,7 +102,7 @@ jobs:
           }
           EOF
 
-          # 6. AndroidManifest.xml (AdMob IDs Integrated)
+          # 6. AndroidManifest.xml (AdMob App ID: 7567486237342194)
           cat << 'EOF' > android/app/src/main/AndroidManifest.xml
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -123,7 +129,7 @@ jobs:
           </manifest>
           EOF
 
-          # 7. MainActivity.java (Game WebView + Interstitial Ad Integrated)
+          # 7. MainActivity.java (AdMob Interstitial Unit ID: 2588775869)
           cat << 'EOF' > android/app/src/main/java/com/cyberflyer/game/MainActivity.java
           package com.cyberflyer.game;
 
@@ -196,15 +202,10 @@ jobs:
           }
           EOF
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-
       - name: Build Android Bundle (AAB)
-        env:
-          ANDROID_HOME: /usr/local/lib/android/sdk
         run: |
           cd android
-          gradle bundleRelease --stacktrace
+          gradle bundleRelease --no-daemon --stacktrace
 
       - name: Upload Release AAB
         uses: actions/upload-artifact@v4
